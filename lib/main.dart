@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:payment_system/responsive/layouts/desktop_layout.dart';
 import 'package:payment_system/responsive/layouts/mobile_layout.dart';
 import 'package:payment_system/responsive/layouts/mobile_views/login_view.dart';
+import 'package:payment_system/responsive/layouts/mobile_views/student_list_views.dart';
 import 'package:payment_system/responsive/layouts/tablet_layout.dart';
 import 'package:payment_system/responsive/responsive_layout.dart';
 
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login/': (context) => const LoginView(),
         '/home/': (context) => const MyApp(),
+        '/student_list/': (context)=> const StudentList()
       },
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
