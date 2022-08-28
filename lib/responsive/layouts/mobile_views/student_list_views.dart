@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:payment_system/responsive/layouts/mobile_views/student_view.dart';
 import '../../../classes/student.dart';
 import '../../global.dart';
 
@@ -15,19 +16,26 @@ class StudentList extends StatefulWidget {
 class _StudentListState extends State<StudentList> {
   late final TextEditingController search;
 
-  // TODO: FIX THIS SHIT
   Future getStudents(String query) async {
-    print(query);
-    var response = await http
-        .get(Uri.http('localhost:3000', 'api/students/query?name=$query'));
-    var jsonData = jsonDecode(response.body);
-    List<Student> studentList = [];
-    for (var u in jsonData) {
-      Student student =
-          Student(code: u['code'], fullName: u['full_name'], sex: u['sex']);
-      studentList.add(student);
+    var response = query.isNotEmpty
+        ? await http.get(
+            Uri.http('localhost:3000', 'api/student/query', {'name': query}))
+        : await http.get(Uri.http('localhost:3000', 'api/student'));
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+      List<Student> studentList = [];
+      for (var u in jsonData) {
+        Student student = Student(
+            code: u['code'],
+            fullName: u['full_name'],
+            sex: u['sex'],
+            isPaid: false);
+        studentList.add(student);
+      }
+      shownStudents = studentList;
+    } else {
+      print(response.body);
     }
-    searchStudents = studentList;
   }
 
   @override
@@ -41,7 +49,6 @@ class _StudentListState extends State<StudentList> {
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
-    bool isClicked = false;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -65,7 +72,6 @@ class _StudentListState extends State<StudentList> {
                       onPressed: () {
                         setState(() {
                           getStudents(search.text);
-                          shownStudents = searchStudents;
                         });
                       },
                       child: const Text("Search")))
@@ -75,13 +81,48 @@ class _StudentListState extends State<StudentList> {
             width: width,
             height: height * 0.8,
             child: ListView.builder(
+              scrollDirection: Axis.vertical,
+              itemCount: shownStudents.length,
               itemBuilder: (context, index) {
+                String fullName = shownStudents[index].fullName;
+                String code = shownStudents[index].code;
+                String sex = shownStudents[index].sex == 0 ? "Female" : "Male";
+                bool isPaid = shownStudents[index].isPaid;
                 return Padding(
                     padding: const EdgeInsets.all(8),
                     child: Container(
-                        color: Colors.black.withOpacity(0.3),
-                        child: Text(
-                            'Full Name: ${shownStudents[index].fullName}\nCode: ${shownStudents[index].code}\nSex: ${shownStudents[index].sex == 0 ? "Female" : "Male"}')));
+                      color: Colors.grey.withOpacity(0.2),
+                      child: ListTile(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => StudentView(
+                                      student: shownStudents[index])));
+                        },
+                        title: Text('$fullName'),
+                        subtitle: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Code: $code'),
+                            Text('Sex: $sex'),
+                            Row(
+                              // ignore: prefer_const_literals_to_create_immutables
+                              children: [
+                                const Text('Status: '),
+                                Container(
+                                  // ignore: dead_code
+                                  color: isPaid ? Colors.green : Colors.red,
+                                  width: width * 0.2,
+                                  height: height * 0.02,
+                                )
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                    ));
               },
             ),
           )

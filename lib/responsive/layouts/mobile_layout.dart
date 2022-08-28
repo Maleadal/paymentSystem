@@ -15,12 +15,15 @@ class MobileLayout extends StatefulWidget {
 
 class _MobileLayoutState extends State<MobileLayout> {
   Future getStudents() async {
-    var response = await http.get(Uri.http('localhost:3000', 'api/students'));
+    var response = await http.get(Uri.http('localhost:3000', 'api/student'));
     var jsonData = jsonDecode(response.body);
     List<Student> studentList = [];
     for (var u in jsonData) {
-      Student student =
-          Student(code: u['code'], fullName: u['full_name'], sex: u['sex']);
+      Student student = Student(
+          code: u['code'],
+          fullName: u['full_name'],
+          sex: u['sex'],
+          isPaid: false);
       studentList.add(student);
     }
     students = studentList;
@@ -47,9 +50,12 @@ class _MobileLayoutState extends State<MobileLayout> {
       ),
       body: Column(
         children: [
-          TextButton(onPressed: () {
-            Navigator.of(context).pushNamedAndRemoveUntil('/student_list/', (route) => true);
-          }, child: const Text("Go to student list"))
+          TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/student_list/', (route) => true);
+              },
+              child: const Text("Go to student list"))
         ],
       ),
     );
