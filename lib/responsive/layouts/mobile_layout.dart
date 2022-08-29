@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:payment_system/responsive/layouts/mobile_views/login_view.dart';
 import 'package:http/http.dart' as http;
+import 'package:payment_system/responsive/layouts/mobile_views/payment_view.dart';
 import '../../classes/student.dart';
 import '../global.dart';
 
@@ -15,7 +16,8 @@ class MobileLayout extends StatefulWidget {
 
 class _MobileLayoutState extends State<MobileLayout> {
   Future getStudents() async {
-    var response = await http.get(Uri.http('localhost:3000', 'api/student'));
+    var response =
+        await http.get(Uri.http('localhost:8000', 'student/students'));
     var jsonData = jsonDecode(response.body);
     List<Student> studentList = [];
     for (var u in jsonData) {
@@ -48,14 +50,49 @@ class _MobileLayoutState extends State<MobileLayout> {
       appBar: AppBar(
         title: const Text("M O B I L E"),
       ),
-      body: Column(
+      body: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TextButton(
-              onPressed: () {
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil('/student_list/', (route) => true);
-              },
-              child: const Text("Go to student list"))
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Options'),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const PaymentView(type: 'Individual')));
+                    },
+                    child: const Text("Individual Payment")),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const PaymentView(type: 'Group')));
+                    },
+                    child: const Text("Group Payment")),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/student_list/', (route) => true);
+                    },
+                    child: const Text("List")),
+              )
+            ],
+          ),
         ],
       ),
     );

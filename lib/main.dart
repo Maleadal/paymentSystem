@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login/': (context) => const LoginView(),
         '/home/': (context) => const MyApp(),
-        '/student_list/': (context)=> const StudentList()
+        '/student_list/': (context) => const StudentList(),
       },
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',

@@ -16,11 +16,11 @@ class StudentList extends StatefulWidget {
 class _StudentListState extends State<StudentList> {
   late final TextEditingController search;
 
-  Future getStudents(String query) async {
+  Future getStudents(String query, String filter) async {
     var response = query.isNotEmpty
-        ? await http.get(
-            Uri.http('localhost:3000', 'api/student/query', {'name': query}))
-        : await http.get(Uri.http('localhost:3000', 'api/student'));
+        ? await http.get(Uri.http(
+            'localhost:8000', 'student/query', {filter.toLowerCase(): query}))
+        : await http.get(Uri.http('localhost:8000', 'student/students'));
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
       List<Student> studentList = [];
@@ -57,9 +57,29 @@ class _StudentListState extends State<StudentList> {
       body: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.8,
+                width: width * 0.3,
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    hint: const Text("Search by: "),
+                    value: shownValue,
+                    icon: const Icon(Icons.arrow_downward),
+                    items: menuItems
+                        .map((e) => DropdownMenuItem(
+                              value: e,
+                              child: Text('By $e'),
+                            ))
+                        .toList(),
+                    onChanged: (value) => setState(() {
+                      shownValue = value;
+                    }),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: width * 0.5,
                 child: TextField(
                   decoration:
                       const InputDecoration(hintText: "Search for student: "),
@@ -67,11 +87,11 @@ class _StudentListState extends State<StudentList> {
                 ),
               ),
               SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.2,
+                  width: width * 0.2,
                   child: TextButton(
                       onPressed: () {
                         setState(() {
-                          getStudents(search.text);
+                          getStudents(search.text, shownValue!);
                         });
                       },
                       child: const Text("Search")))
@@ -100,7 +120,7 @@ class _StudentListState extends State<StudentList> {
                                   builder: (context) => StudentView(
                                       student: shownStudents[index])));
                         },
-                        title: Text('$fullName'),
+                        title: Text(fullName),
                         subtitle: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
